@@ -1,0 +1,4 @@
+#!/bin/bash
+
+docker build -t tacotron .
+docker run --runtime=nvidia -it -w /tacotron -v $PWD:/tacotron tacotron $1
