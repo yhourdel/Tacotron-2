@@ -38,7 +38,7 @@ class Feeder:
 
 		#Load metadata
 		self._data_dir = os.path.dirname(metadata_filename)
-		with open(metadata_filename, 'r') as f:
+		with open(metadata_filename, 'r', encoding='utf-8') as f:
 			self._metadata = [line.strip().split('|') for line in f]
 
 		#Train test split
@@ -324,7 +324,7 @@ class Feeder:
 
 			if self._hparams.clip_for_wavenet:
 				c_features = [np.clip(x, T2_output_range[0], T2_output_range[1]) for x in c_features]
-				
+
 			c_batch = np.stack([_pad_inputs(x, maxlen, _pad=T2_output_range[0]) for x in c_features]).astype(np.float32)
 			assert len(c_batch.shape) == 3
 			#[batch_size, c_channels, time_steps]
