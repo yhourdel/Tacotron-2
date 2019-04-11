@@ -35,7 +35,7 @@ hparams = tf.contrib.training.HParams(
 	#Synthesis also uses the following hardware parameters for multi-GPU parallel synthesis.
 	tacotron_num_gpus = 1, #Determines the number of gpus in use for Tacotron training.
 	wavenet_num_gpus = 1, #Determines the number of gpus in use for WaveNet training.
-	split_on_cpu = False, #Determines whether to split data on CPU or on first GPU. This is automatically True when more than 1 GPU is used.
+	split_on_cpu = True, #Determines whether to split data on CPU or on first GPU. This is automatically True when more than 1 GPU is used.
 		#(Recommend: False on slow CPUs/Disks, True otherwise for small speed boost)
 	###########################################################################################################################################
 
@@ -67,7 +67,7 @@ hparams = tf.contrib.training.HParams(
 
 	#train samples of lengths between 3sec and 14sec are more than enough to make a model capable of generating consistent speech.
 	clip_mels_length = True, #For cases of OOM (Not really recommended, only use if facing unsolvable OOM errors, also consider clipping your samples to smaller chunks)
-	max_mel_frames = 500,  #Only relevant when clip_mels_length = True, please only use after trying outputs_per_step=3 and still getting OOM errors.
+	max_mel_frames = 900,  #Only relevant when clip_mels_length = True, please only use after trying outputs_per_step=3 and still getting OOM errors.
 
 	# Use LWS (https://github.com/Jonathan-LeRoux/lws) for STFT and phase reconstruction
 	# It's preferred to set True to use with https://github.com/r9y9/wavenet_vocoder
@@ -118,7 +118,7 @@ hparams = tf.contrib.training.HParams(
 
 	#Tacotron
 	#Model general type
-	outputs_per_step = 3, #number of frames to generate at each decoding step (increase to speed up computation and allows for higher batch size, decreases G&L audio quality)
+	outputs_per_step = 1, #number of frames to generate at each decoding step (increase to speed up computation and allows for higher batch size, decreases G&L audio quality)
 	stop_at_any = True, #Determines whether the decoder should stop when predicting <stop> to any frame or to all of them (True works pretty well)
 	batch_norm_position = 'after', #Can be in ('before', 'after'). Determines whether we use batch norm before or after the activation function (relu). Matter for debate.
 	clip_outputs = True, #Whether to clip spectrograms to T2_output_range (even in loss computation). ie: Don't penalize model for exceeding output range and bring back to borders.
@@ -298,7 +298,7 @@ hparams = tf.contrib.training.HParams(
 	wavenet_swap_with_cpu = False, #Whether to use cpu as support to gpu for synthesis computation (while loop).(Not recommended: may cause major slowdowns! Only use when critical!)
 
 	#train/test split ratios, mini-batches sizes
-	wavenet_batch_size = 4, #batch size used to train wavenet.
+	wavenet_batch_size = 8, #batch size used to train wavenet.
 	#During synthesis, there is no max_time_steps limitation so the model can sample much longer audio than 8k(or 13k) steps. (Audio can go up to 500k steps, equivalent to ~21sec on 24kHz)
 	#Usually your GPU can handle ~2x wavenet_batch_size during synthesis for the same memory amount during training (because no gradients to keep and ops to register for backprop)
 	wavenet_synthesis_batch_size = 10 * 2, #This ensure that wavenet synthesis goes up to 4x~8x faster when synthesizing multiple sentences. Watch out for OOM with long audios.
